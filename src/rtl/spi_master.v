@@ -1,40 +1,52 @@
-module spi_master(clk,rst,load, read,miso,start,data_in,data_out,mosi,sclk,cs);
-  input clk,rst,load,miso,start,read;
-  input [7:0]data_in;
-  output [7:0]data_out;
-  output reg mosi,cs;
-  output sclk;
+module spi_master(
+    input clk_i,
+    input nrst_i,
 
-  integer count; 
+    input start_i,           // do load, read or shift
+    input load_i,            // load_i from data_i    to shift_reg
+    input read_i,            // read_i from shift_reg to data_out_reg
 
-  reg [7:0]shift_reg;
-  reg [7:0]data_out_reg;
+    input  [7:0]  data_i,
+    output [7:0]  data_o,
+
+    // SPI interface
+    input      miso_i,
+    output     sclk_o,
+    output reg mosi_o,
+    output reg cs_o   );
+
+
+
+    integer count; 
+
+    reg [7:0]shift_reg;
+    reg [7:0]data_out_reg;
   
-  assign data_out=read?data_out_reg:8'h00;
+    assign data_o = read_i ? data_out_reg : 8'h00;
   
-  assign sclk=clk;
+    assign sclk_o = clk_i;
   
-  always @(posedge sclk,negedge rst)
-    if(!rst)
-      begin
-        shift_reg<=0;
-        cs<=0;
-        mosi<=0;
-        data_out_reg<=0;
-      end
-    else 
-      if(start) begin 
-        if(load) begin
-          shift_reg<=data_in;
-          count<=0;
+    always @(posedge sclk_o,negedge nrst_i)
+        if(!nrst_i)
+        begin
+            shift_reg    <= 0;
+            cs_o         <= 0;
+            mosi_o       <= 0;
+            data_out_reg <= 0;
         end
-        else if(read)
-          data_out_reg<=shift_reg;
-        else if(count<8)begin
-          shift_reg<={miso,shift_reg[7:1]};
-          mosi<=shift_reg[0];
-          count<=count+1;
+        else 
+        if(start_i) begin 
+            if(load_i) begin
+                shift_reg <= data_i;
+                count     <= 0;
+            end
+            else if(read_i)
+                data_out_reg <= shift_reg;
+            else if(count<8)begin
+                shift_reg <= { miso_i, shift_reg[7:1] };
+                mosi_o    <= shift_reg[0];
+                count     <= count + 1;
+            end
         end
-      end
-  
+
 endmodule
