@@ -40,12 +40,18 @@ module tb;
     );
 
 
-    
+
     initial begin
         uvm_resource_db#(virtual spi_master_if)::set(
-            "uvm_test_top.env.*_agent.*", "vif", intf, null
+            "uvm_test_top.env.*_agent.*", "vif", dut_if, null
         );
         run_test();
+    end
+
+    // Generate waveforms
+    initial begin
+   		$dumpvars;
+   		$dumpfile("dump.vcd");
     end
 
 endmodule
