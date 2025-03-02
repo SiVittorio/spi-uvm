@@ -1,6 +1,6 @@
 module spi_master(
     input clk_i,
-    input nrst_i,
+    input aresetn_i,
 
     input start_i,           // do load, read or shift
     input load_i,            // load_i from data_i    to shift_reg
@@ -26,8 +26,8 @@ module spi_master(
   
     assign sclk_o = clk_i;
   
-    always @(posedge sclk_o,negedge nrst_i)
-        if(!nrst_i)
+    always @(posedge sclk_o,negedge aresetn_i)
+        if(!aresetn_i)
         begin
             shift_reg    <= 0;
             cs_o         <= 0;
