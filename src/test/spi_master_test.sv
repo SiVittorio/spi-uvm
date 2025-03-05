@@ -1,5 +1,5 @@
 class spi_master_test extends uvm_test;
-    `uvm_component_utils (spi_master_test);
+    `uvm_component_utils (spi_master_test)
 
     spi_master_env_base env;
 
