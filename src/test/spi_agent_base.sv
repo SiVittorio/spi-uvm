@@ -33,11 +33,11 @@ class spi_agent_base extends uvm_agent;
     virtual function void create_components();
         if( get_is_active() ) begin
             if( is_master ) drv = spi_driver_master::type_id::create("m_drv", this);
-            else drv = spi_driver_slave::type_id::create("s_drv", this);
+            // else drv = spi_driver_slave::type_id::create("s_drv", this); // TODO add slave driver
             seqr = spi_seqr_base::type_id::create("seqr", this);  
         end
         if( is_master ) mon = spi_monitor_master::type_id::create("m_mon", this);
-        else mon = spi_monitor_slave::type_id::create("s_mon", this);
+        //else mon = spi_monitor_slave::type_id::create("s_mon", this); // TODO add slave monitor
     endfunction
 
     // Connect sequencer if agent is active

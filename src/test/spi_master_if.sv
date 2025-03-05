@@ -16,5 +16,17 @@ interface spi_master_if(
   logic        sclk_o;
   logic        mosi_o;
   logic        cs_o;
+
+  task wait_for_clks(int num);
+      repeat(num) @(posedge clk_i);
+  endtask
+
+  task wait_for_reset();
+      wait(!aresetn_i);
+  endtask
+
+  task wait_for_unreset();
+      wait(aresetn_i);
+  endtask
     
 endinterface //spi_master_if
