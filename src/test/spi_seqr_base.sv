@@ -1,0 +1,1 @@
+typedef uvm_sequencer#(spi_seq_item_base) spi_seqr_base;
