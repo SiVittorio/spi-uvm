@@ -1,5 +1,7 @@
 module tb;
     import uvm_pkg::*;
+    import spi_dv_pkg::*;
+    `include "uvm_macros.svh"
 
     parameter CLK_PERIOD = 10;
     

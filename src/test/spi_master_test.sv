@@ -20,11 +20,11 @@ class spi_master_test extends uvm_test;
 
         // Base sequence
         seq = spi_master_seq_base::type_id::create("seq");
-        seq.start(env.m_agent.seqr);
+        seq.start(env.agent.seqr);
 
         // I can create a different sequences
         // seq = spi_master_seq_another::type_id::create("seq_another");
-        // seq.start(env.m_agent.seqr);
+        // seq.start(env.agent.seqr);
         
         phase.drop_objection(this);
     endtask

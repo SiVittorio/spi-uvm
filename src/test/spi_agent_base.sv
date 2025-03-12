@@ -9,7 +9,7 @@ class spi_agent_base extends uvm_agent;
 
     bit is_master = 0;
 
-    function new(string name = "", uvm_component parent = null)
+    function new(string name = "", uvm_component parent = null);
         super.new(name, parent);
     endfunction
 

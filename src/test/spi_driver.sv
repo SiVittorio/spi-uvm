@@ -49,12 +49,15 @@ class spi_driver_master extends spi_driver_base;
             set_data();
             // TODO maybe wait some clocks
             unset_data();
-            seq_item_export.item_done();
+            seq_item_port.item_done();
         end
     endtask
 
     // TODO add set data
     virtual task set_data();
+        vif.start_i <= 1'b1;
+        vif.load_i <= 1'b1;
+        vif.data_i <= 8'd170; // 1010_1010
     endtask
 
     virtual task unset_data();
