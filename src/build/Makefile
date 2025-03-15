@@ -6,8 +6,8 @@ COMP_OPTS += +incdir+../test
 v = @
 
 SRCS += $(shell find ../rtl -name "*.*v")
-SRCS += $(shell find ../test -name "*_pkg.sv")
-SRCS += $(shell find ../test -name "*.*v")
+SRCS += $(shell find ../uvm -name "*_pkg.sv")
+SRCS += $(shell find ../tb -name "*.*v")
 
 VERILOG = $(SRCS) $(shell find ../test -name "*.*v")
 
