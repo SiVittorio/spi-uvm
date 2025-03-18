@@ -12,12 +12,12 @@ class spi_master_env_base extends uvm_env;
     // Configure agents and scoreboard
     virtual function void build_phase(uvm_phase phase);
         uvm_resource_db#(bit)::set(
-            {get_full_name(), ".agent"}, "is_master", 1, this
+            {get_full_name(), ".m_agent"}, "is_master", 1, this
         );
         uvm_resource_db#(uvm_active_passive_enum)::set(
             {get_full_name(), ".*_agent"}, "is_active", UVM_ACTIVE, this
         );
-        agent = spi_agent_base     ::type_id::create("agent", this);
+        agent = spi_agent_base     ::type_id::create("m_agent", this);
         //scb   = spi_scoreboard_base::type_id::create("scb"  , this);
     endfunction
 
