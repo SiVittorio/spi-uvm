@@ -41,13 +41,20 @@ class spi_driver_master extends spi_driver_base;
 
     // TODO configure reset for spi
     virtual task reset();
+        vif.start_i <= 1'b0;
+        vif.load_i  <= 1'b0;
+        vif.read_i  <= 1'b0;
     endtask
 
     virtual task main_phase(uvm_phase phase);
         forever begin
             seq_item_port.get_next_item(req);
+
+            $display("Start set data!");
             set_data();
-            // TODO maybe wait some clocks
+            $display("End set data!");
+            
+            vif.wait_for_clks(10);
             unset_data();
             seq_item_port.item_done();
         end
@@ -56,8 +63,8 @@ class spi_driver_master extends spi_driver_base;
     // TODO add set data
     virtual task set_data();
         vif.start_i <= 1'b1;
-        vif.load_i <= 1'b1;
-        vif.data_i <= 8'd170; // 1010_1010
+        vif.load_i  <= 1'b1;
+        vif.data_i  <= 8'd170; // 1010_1010
     endtask
 
     virtual task unset_data();
