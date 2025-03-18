@@ -9,7 +9,7 @@ SRCS += $(shell find ../rtl -name "*.*v")
 SRCS += $(shell find ../uvm -name "*_pkg.sv")
 SRCS += $(shell find ../tb -name "*.*v")
 
-VERILOG = $(SRCS) $(shell find ../test -name "*.*v")
+VERILOG = $(SRCS) $(shell find ../uvm -name "*.*v")
 
 
 # Run
