@@ -50,9 +50,7 @@ class spi_driver_master extends spi_driver_base;
         forever begin
             seq_item_port.get_next_item(req);
 
-            $display("Start set data!");
             set_data();
-            $display("End set data!");
             
             vif.wait_for_clks(10);
             unset_data();

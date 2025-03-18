@@ -33,7 +33,7 @@ class spi_seq_item_base extends uvm_sequence_item;
 
         str = {str, $sformatf("\ndata_i: %8h", data_i)};
         str = {str, $sformatf("\nmiso_i: %8h", miso_i)};
-        str = {str, $sformatf("\ncs_o: %8h",   cs_o)};
+        str = {str, $sformatf("\ncs_o: %8h",   cs_o  )};
         str = {str, $sformatf("\nmosi_o: %8h", mosi_o)};
         str = {str, $sformatf("\ndata_o: %8h", data_o)};
 
