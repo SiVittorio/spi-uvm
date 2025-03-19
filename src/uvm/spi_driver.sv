@@ -44,6 +44,8 @@ class spi_driver_master extends spi_driver_base;
         vif.start_i <= 1'b0;
         vif.load_i  <= 1'b0;
         vif.read_i  <= 1'b0;
+        vif.data_i  <= 8'd0;
+        vif.miso_i  <= 1'bx;
     endtask
 
     virtual task main_phase(uvm_phase phase);
@@ -51,18 +53,21 @@ class spi_driver_master extends spi_driver_base;
             seq_item_port.get_next_item(req);
 
             set_data();
-            
-            vif.wait_for_clks(10);
+            vif.wait_for_clks(1);
+            vif.load_i <= 1'b0;
+            vif.wait_for_clks(8);
+            vif.read_i <= 1'b1;
+            vif.wait_for_clks(2);
             unset_data();
             seq_item_port.item_done();
         end
     endtask
 
-    // TODO add set data
+    // TODO assign req data here
     virtual task set_data();
         vif.start_i <= 1'b1;
         vif.load_i  <= 1'b1;
-        vif.data_i  <= 8'd170; // 1010_1010
+        vif.data_i  <= req.data_i;
     endtask
 
     virtual task unset_data();

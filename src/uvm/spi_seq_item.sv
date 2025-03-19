@@ -3,11 +3,11 @@ class spi_seq_item_base extends uvm_sequence_item;
     `uvm_object_utils(spi_seq_item_base)
     
     rand logic [7:0] data_i;
-    rand logic       miso_i;
+         logic       miso_i;
 
-        logic       cs_o  ;
-        logic       mosi_o;
-        logic [7:0] data_o;
+         logic       cs_o  ;
+         logic       mosi_o;
+         logic [7:0] data_o;
 
 
     function new(string name = "");
