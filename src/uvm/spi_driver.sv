@@ -39,7 +39,6 @@ class spi_driver_master extends spi_driver_base;
         super.new(name, parent);
     endfunction
 
-    // TODO configure reset for spi
     virtual task reset();
         vif.start_i <= 1'b0;
         vif.load_i  <= 1'b0;

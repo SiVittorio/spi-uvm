@@ -7,7 +7,7 @@ class spi_master_env_base extends uvm_env;
 
     spi_agent_base      agent;
 
-    //spi_scoreboard_base scb;
+    spi_scoreboard_base scb;
 
     // Configure agents and scoreboard
     virtual function void build_phase(uvm_phase phase);
@@ -18,12 +18,12 @@ class spi_master_env_base extends uvm_env;
             {get_full_name(), ".*_agent"}, "is_active", UVM_ACTIVE, this
         );
         agent = spi_agent_base     ::type_id::create("m_agent", this);
-        //scb   = spi_scoreboard_base::type_id::create("scb"  , this);
+        scb   = spi_scoreboard_base::type_id::create("scb"  , this);
     endfunction
 
     // Connect monitors with scoreboards
-    // virtual function void connect_phase(uvm_phase);
-    //     agent.mon.ap.connect(scb.imp_in);
-    // endfunction
+    virtual function void connect_phase(uvm_phase phase);
+        agent.mon.ap.connect(scb.imp_in);
+    endfunction
 
 endclass
