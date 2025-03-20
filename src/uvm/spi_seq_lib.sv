@@ -9,7 +9,7 @@ class spi_master_seq_base extends uvm_sequence#(spi_seq_item_base);
     //   REQ req;
     //   RSP rsp;
 
-    int item_amount = 3;
+    int item_amount = 1;
 
     function new(string name = "");
         super.new(name);

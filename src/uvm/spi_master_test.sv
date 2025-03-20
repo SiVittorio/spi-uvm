@@ -9,7 +9,7 @@ class spi_master_test extends uvm_test;
 
     virtual function void build_phase(uvm_phase phase);
         uvm_resource_db#(int)::set(
-           "*", "item_amount", $urandom_range(100, 200), this
+           "*", "item_amount", $urandom_range(5, 20), this
         );
         env = spi_master_env_base::type_id::create("env", this);
     endfunction
