@@ -21,6 +21,13 @@ run: clean $(OUT)/compile.stamp
 			-do "run -a;" +UVM_TESTNAME=spi_master_test -voptargs="+acc" -l $(OUT)/sim.log \
 				-wlf $(OUT)/sim.wlf > $(OUT)/sim.log
 
+debug: clean $(OUT)/compile.stamp
+	@echo "Running (log file at $(OUT)/sim.log) ..."
+	$(v)vsim tb +UVM_VERBOSITY=UVM_DEBUG -work $(OUT)/work -do "add wave tb/DUT/*" \
+		-do "coverage save -onexit -testname spi_master_test_$(SEED) out/coverage.ucdb" -sv_seed $(SEED) \
+			-do "run -a;" +UVM_TESTNAME=spi_master_test -voptargs="+acc" -l $(OUT)/sim.log \
+				-wlf $(OUT)/sim.wlf > $(OUT)/sim.log
+
 # Compile
 
 $(OUT)/compile.stamp: $(VERILOG) $(OUT)/COMP_OPTS.$(subst /,,$(COMP_OPTS)) | $(OUT)
