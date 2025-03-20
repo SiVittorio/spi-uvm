@@ -14,7 +14,7 @@ VERILOG = $(SRCS) $(shell find ../uvm -name "*.*v")
 
 # Run
 
-run: $(OUT)/compile.stamp
+run: clean $(OUT)/compile.stamp
 	@echo "Running (log file at $(OUT)/sim.log) ..."
 	$(v)vsim tb $(SIM_OPTS) -work $(OUT)/work -do "add wave tb/DUT/*" \
 		-do "coverage save -onexit -testname spi_master_test_$(SEED) out/coverage.ucdb" -sv_seed $(SEED) \
