@@ -42,7 +42,6 @@ class spi_driver_master extends spi_driver_base;
     virtual task reset();
         vif.start_i <= 1'b0;
         vif.load_i  <= 1'b0;
-        vif.read_i  <= 1'b0;
         vif.data_i  <= 8'd0;
         vif.miso_i  <= 1'bx;
     endtask
@@ -55,8 +54,6 @@ class spi_driver_master extends spi_driver_base;
             vif.wait_for_clks(1);
             vif.load_i <= 1'b0;
             vif.wait_for_clks(8);
-            vif.read_i <= 1'b1;
-            vif.wait_for_clks(2);
             unset_data();
             seq_item_port.item_done();
         end

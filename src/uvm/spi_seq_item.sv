@@ -7,7 +7,6 @@ class spi_seq_item_base extends uvm_sequence_item;
 
          logic       cs_o  ;
          logic       mosi_o;
-         logic [7:0] data_o;
 
 
     function new(string name = "");
@@ -25,7 +24,6 @@ class spi_seq_item_base extends uvm_sequence_item;
         this.miso_i = that.miso_i;
         this.cs_o   = that.cs_o  ;
         this.mosi_o = that.mosi_o;
-        this.data_o = that.data_o;
     endfunction
 
     virtual function string convert2string();
@@ -35,7 +33,6 @@ class spi_seq_item_base extends uvm_sequence_item;
         str = {str, $sformatf("\nmosi_o: %7s%1b", " ",mosi_o)};
         str = {str, $sformatf("\ncs_o:   %7s%1b", " ",cs_o  )};
         str = {str, $sformatf("\ndata_i: %8h"   ,     data_i)};
-        str = {str, $sformatf("\ndata_o: %8h"   ,     data_o)};
 
         return str;
     endfunction
