@@ -17,15 +17,17 @@ module spi_master(
     integer count; 
 
     reg [7:0]shift_reg;
-  
-    assign sclk_o = clk_i;
+    reg is_in_progress;
+    assign sclk_o      = is_in_progress ? clk_i : 1'b1; 
     
     // Internal logic block
-    always @(posedge sclk_o,negedge aresetn_i)
+    always @(posedge clk_i,negedge aresetn_i)
     begin
         if(!aresetn_i)
         begin
-            shift_reg    <= 8'd0;
+            count          <= 0;
+            shift_reg      <= 8'd0;
+            is_in_progress <= 1'b0;
         end
         else 
         begin
@@ -35,15 +37,20 @@ module spi_master(
                 begin
                     shift_reg    <= data_i;
                     count        <= 0;
+                    is_in_progress <= 1'b1;
                 end
                 else if(count < 8)
                 begin
                     shift_reg    <= { shift_reg[6:0], miso_i };
                     count        <= count + 1;
+                    is_in_progress <= count != 7;
                 end
             end
             else
+            begin
+                is_in_progress <= 1'b0;
                 count <= 0;
+            end
         end
     end
     
@@ -57,7 +64,7 @@ module spi_master(
         end
         else
         begin
-            if (start_i)
+            if (is_in_progress)
             begin
                 cs_o   <= 1'b0;
                 mosi_o <= shift_reg[7];
@@ -65,6 +72,7 @@ module spi_master(
             else
             begin
                 cs_o   <= 1'b1;
+                mosi_o <= 1'bx;
             end
         end
     end
