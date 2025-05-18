@@ -55,10 +55,23 @@ class spi_scoreboard_base extends uvm_scoreboard;
     virtual function void do_check(
         spi_seq_item_base t_data
     );
+        if (~is_first_tx && t_data.cs_o)
+        begin
+            `uvm_error({get_name(),": BAD"}, $sformatf(
+                    "Controller was load, but CS is unactive!"
+                ));
+        end
+        else
+        begin
+            `uvm_info({get_name(),": GOOD"}, $sformatf(
+                    "Controller was load, and CS is active!"
+                ), UVM_DEBUG);
+        end
+
         if (is_first_tx)
         begin
             is_first_tx = ~is_first_tx;
-            `uvm_info(get_name(), $sformatf("Starting transmission for %8b", t_data.data_i), UVM_MEDIUM)
+            `uvm_info(get_name(), $sformatf("Starting transmission for %8b", t_data.data_i), UVM_MEDIUM);
         end
         else 
         begin
@@ -81,8 +94,34 @@ class spi_scoreboard_base extends uvm_scoreboard;
                 ), UVM_DEBUG);
             end
 
+            if (~t_data.cs_o)
+            begin
+                `uvm_error({get_name(),": BAD"}, $sformatf(
+                    "Transmission ends, but CS is active!"
+                ));
+            end
+            else
+            begin
+                `uvm_info({get_name(),": GOOD"}, $sformatf(
+                    "Transmission ends, and CS is unactive"
+                ), UVM_DEBUG);
+            end
+
             count       = 0;
             is_first_tx = 1;
+        end
+
+        if (t_data.cs_o && (t_data.mosi_o != 1'bx || t_data.sclk_o != 1'b1))
+        begin
+            `uvm_error({get_name(),": BAD"}, $sformatf(
+                    "CS is unactive => mosi is %1b (expected x) and sclk is %1b (expected 1)", t_data.mosi_o, t_data.sclk_o
+                ));
+        end
+        else
+        begin
+            `uvm_info({get_name(),": GOOD"}, $sformatf(
+                    "CS is unactive => mosi is %1b and sclk is %1b", t_data.mosi_o, t_data.sclk_o
+                ), UVM_DEBUG);
         end
     endfunction
 

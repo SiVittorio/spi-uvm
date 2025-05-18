@@ -5,6 +5,7 @@ class spi_seq_item_base extends uvm_sequence_item;
     rand logic [7:0] data_i;
     rand logic       miso_i;
 
+         logic       sclk_o;
          logic       cs_o  ;
          logic       mosi_o;
 
@@ -22,6 +23,7 @@ class spi_seq_item_base extends uvm_sequence_item;
         super.do_copy(that);
         this.data_i = that.data_i;
         this.miso_i = that.miso_i;
+        this.sclk_o = that.sclk_o;
         this.cs_o   = that.cs_o  ;
         this.mosi_o = that.mosi_o;
     endfunction
@@ -31,6 +33,7 @@ class spi_seq_item_base extends uvm_sequence_item;
 
         str = {str, $sformatf("\nmiso_i: %7s%1b", " ",miso_i)};
         str = {str, $sformatf("\nmosi_o: %7s%1b", " ",mosi_o)};
+        str = {str, $sformatf("\nsclk_o: %7s%1b", " ",sclk_o)};
         str = {str, $sformatf("\ncs_o:   %7s%1b", " ",cs_o  )};
         str = {str, $sformatf("\ndata_i: %8b"   ,     data_i)};
 

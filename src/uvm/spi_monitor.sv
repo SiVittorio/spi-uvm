@@ -43,6 +43,7 @@ virtual class spi_monitor_base extends uvm_monitor;
         req.miso_i = vif.miso_i;
         req.cs_o   = vif.cs_o  ;
         req.mosi_o = vif.mosi_o;
+        req.sclk_o = vif.sclk_o;
         // `uvm_datafo(get_name(), $sformatf("Got item: %s",
         //     req.convert2string()), UVM_DEBUG);
         ap.write(req);
