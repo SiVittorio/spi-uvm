@@ -16,16 +16,16 @@ VERILOG = $(SRCS) $(shell find ../uvm -name "*.*v")
 
 run: clean $(OUT)/compile.stamp
 	@echo "Running (log file at $(OUT)/sim.log) ..."
-	$(v)vsim tb $(SIM_OPTS) -work $(OUT)/work -do "add wave tb/DUT/*" \
+	$(v)vsim tb $(SIM_OPTS) -work $(OUT)/work -do "add wave tb/DUT/*" -coverage \
 		-do "coverage save -onexit -testname spi_master_test_$(SEED) out/coverage.ucdb" -sv_seed $(SEED) \
-			-do "run -a;" +UVM_TESTNAME=spi_master_test -voptargs="+acc" -l $(OUT)/sim.log \
+			-do "run -a;" +UVM_TESTNAME=spi_master_test -voptargs="+acc +cover=bcest" -l $(OUT)/sim.log \
 				-wlf $(OUT)/sim.wlf > $(OUT)/sim.log
 
 debug: clean $(OUT)/compile.stamp
 	@echo "Running (log file at $(OUT)/sim.log) ..."
-	$(v)vsim tb +UVM_VERBOSITY=UVM_DEBUG -work $(OUT)/work -do "add wave tb/DUT/*" \
+	$(v)vsim tb +UVM_VERBOSITY=UVM_DEBUG -work $(OUT)/work -do "add wave tb/DUT/*" -coverage \
 		-do "coverage save -onexit -testname spi_master_test_$(SEED) out/coverage.ucdb" -sv_seed $(SEED) \
-			-do "run -a;" +UVM_TESTNAME=spi_master_test -voptargs="+acc" -l $(OUT)/sim.log \
+			-do "run -a;" +UVM_TESTNAME=spi_master_test -voptargs="+acc +cover=bcest" -l $(OUT)/sim.log \
 				-wlf $(OUT)/sim.wlf > $(OUT)/sim.log
 
 # Compile
@@ -49,6 +49,12 @@ $(OUT):
 $(OUT)/COMP_OPTS.$(subst /,,$(COMP_OPTS)): | $(OUT)
 	$(v)rm -f $(OUT)/COMP_OPTS.*
 	@touch $@
+
+
+# Make coverage report
+report: $(OUT)/coverage.ucdb
+	vcover report -details -html $(OUT)/coverage.ucdb
+	firefox ./covhtmlreport/index.html
 
 # Clean
 
