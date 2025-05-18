@@ -3,7 +3,7 @@ class spi_seq_item_base extends uvm_sequence_item;
     `uvm_object_utils(spi_seq_item_base)
     
     rand logic [7:0] data_i;
-         logic       miso_i;
+    rand logic       miso_i;
 
          logic       cs_o  ;
          logic       mosi_o;
@@ -32,7 +32,7 @@ class spi_seq_item_base extends uvm_sequence_item;
         str = {str, $sformatf("\nmiso_i: %7s%1b", " ",miso_i)};
         str = {str, $sformatf("\nmosi_o: %7s%1b", " ",mosi_o)};
         str = {str, $sformatf("\ncs_o:   %7s%1b", " ",cs_o  )};
-        str = {str, $sformatf("\ndata_i: %8h"   ,     data_i)};
+        str = {str, $sformatf("\ndata_i: %8b"   ,     data_i)};
 
         return str;
     endfunction

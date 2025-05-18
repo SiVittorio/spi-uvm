@@ -64,6 +64,7 @@ class spi_driver_master extends spi_driver_base;
         vif.start_i <= 1'b1;
         vif.load_i  <= 1'b1;
         vif.data_i  <= req.data_i;
+        vif.miso_i  <= req.miso_i;
     endtask
 
     virtual task unset_data();

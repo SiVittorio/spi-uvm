@@ -23,7 +23,7 @@ class spi_master_env_base extends uvm_env;
 
     // Connect monitors with scoreboards
     virtual function void connect_phase(uvm_phase phase);
-        agent.mon.ap.connect(scb.imp_in);
+        agent.mon.ap.connect(scb.imp_data);
     endfunction
 
 endclass

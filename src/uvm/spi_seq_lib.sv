@@ -3,7 +3,7 @@ class spi_master_seq_base extends uvm_sequence#(spi_seq_item_base);
     `uvm_object_utils(spi_master_seq_base)
 
 
-    //   Contain:
+    //   Contains:
     //   typedef spi_seq_item_base REQ;
     //   typedef spi_seq_item_base RSP;
     //   REQ req;
