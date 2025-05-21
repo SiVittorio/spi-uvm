@@ -2,7 +2,7 @@ SHELL := bash
 
 OUT = ./out
 SEED = $$RANDOM
-COMP_OPTS += +incdir+../test
+COMP_OPTS += +incdir+$(UVM_HOME)/src $(UVM_HOME)/src/uvm_pkg.sv
 v = @
 
 SRCS += $(shell find ../rtl -name "*.*v")
@@ -16,16 +16,16 @@ VERILOG = $(SRCS) $(shell find ../uvm -name "*.*v")
 
 run: clean $(OUT)/compile.stamp
 	@echo "Running (log file at $(OUT)/sim.log) ..."
-	$(v)vsim tb $(SIM_OPTS) -work $(OUT)/work -do "add wave tb/DUT/*" -coverage \
+	$(v)vsim -sv_lib $(UVM_DPI_HOME)/uvm_dpi tb $(SIM_OPTS) -work $(OUT)/work -do "add wave tb/DUT/*" -coverage \
 		-do "coverage save -onexit -testname spi_master_test_$(SEED) out/coverage.ucdb" -sv_seed $(SEED) \
-			-do "run -a;" +UVM_TESTNAME=spi_master_test -voptargs="+acc +cover=bcest" -l $(OUT)/sim.log \
+			-do "run -a;" +UVM_TESTNAME=spi_master_test -voptargs=+acc -l $(OUT)/sim.log \
 				-wlf $(OUT)/sim.wlf > $(OUT)/sim.log
 
 debug: clean $(OUT)/compile.stamp
 	@echo "Running (log file at $(OUT)/sim.log) ..."
 	$(v)vsim tb +UVM_VERBOSITY=UVM_DEBUG -work $(OUT)/work -do "add wave tb/DUT/*" -coverage \
 		-do "coverage save -onexit -testname spi_master_test_$(SEED) out/coverage.ucdb" -sv_seed $(SEED) \
-			-do "run -a;" +UVM_TESTNAME=spi_master_test -voptargs="+acc +cover=bcest" -l $(OUT)/sim.log \
+			-do "run -a;" +UVM_TESTNAME=spi_master_test -voptargs=+acc -l $(OUT)/sim.log \
 				-wlf $(OUT)/sim.wlf > $(OUT)/sim.log
 
 # Compile
@@ -34,8 +34,8 @@ $(OUT)/compile.stamp: $(VERILOG) $(OUT)/COMP_OPTS.$(subst /,,$(COMP_OPTS)) | $(O
 	@echo "Compiling (log file at $(OUT)/compile.log) ..."
 	$(v)vlib $(OUT)/work > $(OUT)/compile.log
 	$(v)vmap work $(OUT)/work >> $(OUT)/compile.log
-	$(v)vmap mtiUvm /tools/Mentor/questasim/uvm-1.2 >> $(OUT)/compile.log
-	$(v)vlog -sv $(COMP_OPTS) -work work $(SRCS) >> $(OUT)/compile.log
+	$(v)vmap mtiUvm /usr/local/bin/quartus-prime/questa_fse/uvm-1.2 >> $(OUT)/compile.log
+	$(v)vlog -vopt -sv $(COMP_OPTS) -work work $(SRCS) >> $(OUT)/compile.log
 	@touch $@
 
 # Output directory
