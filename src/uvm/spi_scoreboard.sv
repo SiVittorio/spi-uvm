@@ -14,7 +14,7 @@ class spi_scoreboard_base extends uvm_scoreboard;
 
     // Vars for check
     logic [7:0] data_rx      = 8'hxx;
-    logic       is_first_tx  = 1;
+    logic       cs_unset     = 1;
     int         count        = 0;
 
 
@@ -55,7 +55,9 @@ class spi_scoreboard_base extends uvm_scoreboard;
     virtual function void do_check(
         spi_seq_item_base t_data
     );
-        if (~is_first_tx && t_data.cs_o)
+        `uvm_info(get_name(), $sformatf("Count is %d", count), UVM_MEDIUM);
+
+        if (!cs_unset && t_data.cs_o)
         begin
             `uvm_error({get_name(),": BAD"}, $sformatf(
                     "Controller was load, but CS is unactive!"
@@ -68,20 +70,21 @@ class spi_scoreboard_base extends uvm_scoreboard;
                 ), UVM_DEBUG);
         end
 
-        if (is_first_tx)
+        if (cs_unset && !t_data.cs_o)
         begin
-            is_first_tx = ~is_first_tx;
+            cs_unset = ~cs_unset;
             `uvm_info(get_name(), $sformatf("Starting transmission for %8b", t_data.data_i), UVM_MEDIUM);
         end
-        else 
+
+        if (count < 8 && !cs_unset)
         begin
             data_rx = {data_rx[6:0], t_data.mosi_o};
             count++;
         end
 
-        if (count == 8)
+        if (count == 8 && !cs_unset)
         begin
-            if (data_rx != t_data.data_i)
+            if (data_rx !== t_data.data_i)
             begin
                 `uvm_error({get_name(),": BAD"}, $sformatf(
                     "data_tx (%8b) was receive as %8b", t_data.data_i, data_rx
@@ -94,7 +97,11 @@ class spi_scoreboard_base extends uvm_scoreboard;
                 ), UVM_DEBUG);
             end
 
-            if (~t_data.cs_o)
+            cs_unset    = 1;
+        end
+        else if (count == 8 && cs_unset)
+        begin
+            if (!t_data.cs_o)
             begin
                 `uvm_error({get_name(),": BAD"}, $sformatf(
                     "Transmission ends, but CS is active!"
@@ -107,11 +114,10 @@ class spi_scoreboard_base extends uvm_scoreboard;
                 ), UVM_DEBUG);
             end
 
-            count       = 0;
-            is_first_tx = 1;
+            count = 0;
         end
 
-        if (t_data.cs_o && (t_data.mosi_o != 1'bx || t_data.sclk_o != 1'b1))
+        if (t_data.cs_o && (t_data.mosi_o !== 1'bx || t_data.sclk_o !== 1'b1))
         begin
             `uvm_error({get_name(),": BAD"}, $sformatf(
                     "CS is unactive => mosi is %1b (expected x) and sclk is %1b (expected 1)", t_data.mosi_o, t_data.sclk_o
