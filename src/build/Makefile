@@ -19,14 +19,16 @@ run: clean $(OUT)/compile.stamp
 	$(v)vsim -sv_lib $(UVM_DPI_HOME)/uvm_dpi tb $(SIM_OPTS) -work $(OUT)/work -do "add wave tb/DUT/*" -coverage \
 		-do "coverage save -onexit -testname spi_master_test_$(SEED) out/coverage.ucdb" -sv_seed $(SEED) \
 			-do "run -a;" +UVM_TESTNAME=spi_master_test -voptargs=+acc -l $(OUT)/sim.log \
-				-wlf $(OUT)/sim.wlf > $(OUT)/sim.log
+				-wlf $(OUT)/sim.wlf > $(OUT)/sim.log \
+					-do "layout load Simulate"
 
 debug: clean $(OUT)/compile.stamp
 	@echo "Running (log file at $(OUT)/sim.log) ..."
-	$(v)vsim tb +UVM_VERBOSITY=UVM_DEBUG -work $(OUT)/work -do "add wave tb/DUT/*" -coverage \
+	$(v)vsim -sv_lib $(UVM_DPI_HOME)/uvm_dpi tb +UVM_VERBOSITY=UVM_DEBUG -work $(OUT)/work -do "add wave tb/DUT/*" -coverage \
 		-do "coverage save -onexit -testname spi_master_test_$(SEED) out/coverage.ucdb" -sv_seed $(SEED) \
 			-do "run -a;" +UVM_TESTNAME=spi_master_test -voptargs=+acc -l $(OUT)/sim.log \
-				-wlf $(OUT)/sim.wlf > $(OUT)/sim.log
+				-wlf $(OUT)/sim.wlf > $(OUT)/sim.log \
+					-do "layout load Simulate"
 
 # Compile
 
