@@ -14,12 +14,12 @@ module spi_master(
     output reg cs_o   );
 
 
-    integer count; 
+    integer count;
 
     reg [7:0]shift_reg;
     reg is_in_progress;
-    assign sclk_o      = is_in_progress ? clk_i : 1'b1; 
-    
+    assign sclk_o      = is_in_progress ? clk_i : 1'b1;
+
     // Internal logic block
     always @(posedge clk_i,negedge aresetn_i)
     begin
@@ -29,10 +29,10 @@ module spi_master(
             shift_reg      <= 8'd0;
             is_in_progress <= 1'b0;
         end
-        else 
+        else
         begin
             if(start_i)
-            begin 
+            begin
                 if(load_i)
                 begin
                     shift_reg    <= data_i;
@@ -53,7 +53,7 @@ module spi_master(
             end
         end
     end
-    
+
     // SPI-interface logic block
     always @(negedge clk_i)
     begin
