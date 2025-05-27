@@ -51,11 +51,11 @@ class spi_driver_master extends spi_driver_base;
             seq_item_port.get_next_item(req);
 
             set_data();
-            vif.wait_for_clks(1);
+            vif.wait_for_posedge(1);
             vif.load_i <= 1'b0;
-            vif.wait_for_clks(8);
+            vif.wait_for_posedge(8);
             unset_data();
-            vif.wait_for_clks(1);
+            vif.wait_for_posedge(1);
             seq_item_port.item_done();
         end
     endtask

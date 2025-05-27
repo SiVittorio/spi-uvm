@@ -59,7 +59,7 @@ class spi_monitor_master extends spi_monitor_base;
     endfunction
 
     virtual task wait_for_handshake();
-        vif.wait_for_clks(1); // TODO maybe some conditions here
+        vif.wait_for_posedge(1);
     endtask
 
 endclass

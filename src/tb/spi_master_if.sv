@@ -15,8 +15,12 @@ interface spi_master_if(
   logic        mosi_o;
   logic        cs_o;
 
-  task wait_for_clks(int num);
+  task wait_for_posedge(int num);
       repeat(num) @(posedge clk_i);
+  endtask
+
+  task wait_for_negedge(int num);
+      repeat(num) @(negedge clk_i);
   endtask
 
   task wait_for_reset();
