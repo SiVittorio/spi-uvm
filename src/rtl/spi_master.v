@@ -35,21 +35,21 @@ module spi_master(
             begin
                 if(load_i)
                 begin
-                    shift_reg    <= data_i;
-                    count        <= 0;
+                    shift_reg      <= data_i;
+                    count          <= 0;
                     is_in_progress <= 1'b1;
                 end
                 else if(count < 8)
                 begin
-                    shift_reg    <= { shift_reg[6:0], miso_i };
-                    count        <= count + 1;
+                    shift_reg      <= { shift_reg[6:0], miso_i };
+                    count          <= count + 1;
                     is_in_progress <= count != 7;
                 end
             end
             else
             begin
                 is_in_progress <= 1'b0;
-                count <= 0;
+                count          <= 0;
             end
         end
     end
