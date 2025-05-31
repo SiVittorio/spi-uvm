@@ -44,7 +44,7 @@ module spi_master(
     localparam ST_REG_ADDR          = 8'h08;
 
     assign sclk_o      = &drive ? pclk_i : 1'b1;
-    assign pready_o    = &drive;
+    assign pready_o    = ~&drive;
 
 
     // Write APB data logic
@@ -61,7 +61,7 @@ module spi_master(
         end
         else
         begin
-            if (psel_i && penable_i && pwrite_i)
+            if (psel_i && penable_i && pwrite_i && pready_o)
             begin
                 case(paddr_i)
                     INSTR_REG_ADDR:     instr     <= pwdata_i;
@@ -82,12 +82,18 @@ module spi_master(
         if(!presetn_i)
         begin
             shift_reg <= 8'h00;
+            instr_byte_num <= 0;
+            spi_bit_count <= 0;
+            str <= 8'h00;
         end
         else
         begin
             if (&drive)
             begin
-                for (instr_byte_num=0; instr_byte_num<bytes_cnt; instr_byte_num = instr_byte_num + 1) begin
+                if (instr_byte_num < bytes_cnt)
+                begin
+                    str <= 8'h01;
+                    $display("Hi, instr: %d : %b", instr_byte_num - 1, bytes[instr_byte_num-1]);
                     case (instr_byte_num)
                         0: shift_reg <= instr;
                         1: shift_reg <= bytes[instr_byte_num-1];
@@ -97,11 +103,23 @@ module spi_master(
                         5: shift_reg <= bytes[instr_byte_num-1];
                     endcase
 
-                    for (spi_bit_count=0; spi_bit_count<8; spi_bit_count = spi_bit_count + 1) begin
+                    if (spi_bit_count < 8)
+                    begin
+                        spi_bit_count <= spi_bit_count + 1;
                         shift_reg <= { shift_reg[6:0], miso_i };
                     end
+                    else
+                    begin
+                        instr_byte_num <= instr_byte_num + 1;
+                        spi_bit_count <= 0;
+                    end
                 end
-                drive <= 8'h00;
+                else
+                begin
+                    str <= 8'h00;
+                    instr_byte_num <= 0;
+                    drive <= 8'h00;
+                end
             end
         end
     end
@@ -118,6 +136,7 @@ module spi_master(
         begin
             if (&drive)
             begin
+                
                 cs_o   <= 1'b0;
                 mosi_o <= shift_reg[7];
             end
