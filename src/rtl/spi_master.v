@@ -98,8 +98,6 @@ module spi_master(
                 end
                 else if (instr_byte_num <= bytes_cnt)
                 begin
-                    $display("Hi, instr: %d : %b", instr_byte_num - 1, bytes[instr_byte_num-1]);
-
                     if (spi_bit_count < 7)
                     begin
                         spi_bit_count <= spi_bit_count + 1;
@@ -107,6 +105,8 @@ module spi_master(
                     end
                     else
                     begin
+                        if (instr_byte_num > 1)
+                            bytes[instr_byte_num -2] <= { shift_reg[6:0], miso_i };
                         shift_reg <= bytes[instr_byte_num-1];
                         instr_byte_num <= instr_byte_num + 1;
                         spi_bit_count <= 0;
@@ -114,6 +114,7 @@ module spi_master(
                 end
                 else
                 begin
+                    $display("Bytes:\n1: %b\n2: %b\n3: %b\n4: %b\n5: %b", bytes[0],bytes[1],bytes[2],bytes[3],bytes[4],bytes[5]);
                     str <= 8'h00;
                     instr_byte_num <= 0;
                     drive <= 8'h00;
