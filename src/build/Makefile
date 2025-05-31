@@ -40,6 +40,13 @@ $(OUT)/compile.stamp: $(VERILOG) $(OUT)/COMP_OPTS.$(subst /,,$(COMP_OPTS)) | $(O
 	$(v)vlog -vopt -sv $(COMP_OPTS) -work work $(SRCS) >> $(OUT)/compile.log
 	@touch $@
 
+compile: ../rtl/spi_master.v
+	@echo "Compiling spi_master..."
+	rm -r out_verilog
+	mkdir out_verilog
+	$(v)vlib out_verilog/work
+	$(v)vlog -vopt -work out_verilog/work ../rtl/spi_master.v
+
 # Output directory
 
 $(OUT):
