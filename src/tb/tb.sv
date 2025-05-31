@@ -8,7 +8,7 @@ module tb;
     logic clk_i;
     logic aresetn_i;
 
-    // Clk gen    
+    // Clk gen
     initial begin
         clk_i <= 0;
         forever begin
@@ -28,15 +28,19 @@ module tb;
 
     // Init dut
     spi_master    DUT (
-        .clk_i     ( clk_i          ),
-        .aresetn_i ( aresetn_i      ),
-        .start_i   ( dut_if.start_i ),
-        .load_i    ( dut_if.load_i  ),
-        .data_i    ( dut_if.data_i  ),
-        .miso_i    ( dut_if.miso_i  ),
-        .sclk_o    ( dut_if.sclk_o  ),
-        .mosi_o    ( dut_if.mosi_o  ),
-        .cs_o      ( dut_if.cs_o    )
+        .pclk_i     ( clk_i             ),
+        .presetn_i  ( aresetn_i         ),
+        .paddr_i    ( dut_if.paddr_i    ),
+        .psel_i     ( dut_if.psel_i     ),
+        .penable_i  ( dut_if.penable_i  ),
+        .pwrite_i   ( dut_if.pwrite_i   ),
+        .pwdata_i   ( dut_if.pwdata_i   ),
+        .pready_o   ( dut_if.pready_o   ),
+        .prdata_o   ( dut_if.prdata_o   ),
+        .miso_i     ( dut_if.miso_i     ),
+        .sclk_o     ( dut_if.sclk_o     ),
+        .mosi_o     ( dut_if.mosi_o     ),
+        .cs_o       ( dut_if.cs_o       )
     );
 
 
@@ -46,12 +50,6 @@ module tb;
             "uvm_test_top.env.*_agent.*", "vif", dut_if, null
         );
         run_test();
-    end
-
-    // Generate waveforms
-    initial begin
-   		$dumpvars;
-   		$dumpfile("dump.vcd");
     end
 
 endmodule

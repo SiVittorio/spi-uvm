@@ -35,37 +35,64 @@ class spi_driver_master extends spi_driver_base;
     
     `uvm_component_utils(spi_driver_master)
     
+    // Addresses for common regs
+    localparam INSTR_REG_ADDR       = 8'h00;
+    localparam BYTES_1_REG_ADDR     = 8'h01;
+    localparam BYTES_2_REG_ADDR     = 8'h02;
+    localparam BYTES_3_REG_ADDR     = 8'h03;
+    localparam BYTES_4_REG_ADDR     = 8'h04;
+    localparam BYTES_5_REG_ADDR     = 8'h05;
+    localparam BYTES_CNT_REG_ADDR   = 8'h06;
+    localparam DRIVE_REG_ADDR       = 8'h07;
+    localparam ST_REG_ADDR          = 8'h08;
+
     function new(string name = "", uvm_component parent = null);
         super.new(name, parent);
     endfunction
 
     virtual task reset();
-        vif.start_i <= 1'b0;
-        vif.load_i  <= 1'b0;
-        vif.data_i  <= 8'd0;
-        vif.miso_i  <= 1'bx;
+        vif.paddr_i   <= 8'h00;
+        vif.psel_i    <= 1'b0;
+        vif.penable_i <= 1'b0;
+        vif.pwrite_i  <= 1'b0;
+        vif.pwdata_i  <= 8'h00;
+        vif.miso_i    <= 1'b1;
     endtask
 
     virtual task main_phase(uvm_phase phase);
+        `uvm_info(get_name(), "Begin main", UVM_DEBUG);
         forever begin
-            seq_item_port.get_next_item(req);
+            wait(vif.cs_o);
 
-            set_data();
-            vif.wait_for_posedge(1);
-            vif.load_i <= 1'b0;
-            vif.wait_for_posedge(8);
+            seq_item_port.get_next_item(req);
+            `uvm_info(get_name(), "Get item", UVM_DEBUG);
+            write_data_by_apb(INSTR_REG_ADDR, req.instruction[0]);
+            for (int i=0; i<req.bytes_cnt; ++i) begin
+                write_data_by_apb(i+1, req.instruction[i+1]);
+            end
+            `uvm_info(get_name(), "After cycle", UVM_DEBUG);
+            write_data_by_apb(BYTES_CNT_REG_ADDR, req.bytes_cnt);
+            write_data_by_apb(DRIVE_REG_ADDR, 8'hff);
             unset_data();
+
+            wait(vif.pready_o);
+
             vif.wait_for_posedge(1);
             seq_item_port.item_done();
         end
+        `uvm_info(get_name(), "End main", UVM_DEBUG);
     endtask
 
-    // TODO assign req data here
-    virtual task set_data();
-        vif.start_i <= 1'b1;
-        vif.load_i  <= 1'b1;
-        vif.data_i  <= req.data_i;
-        vif.miso_i  <= req.miso_i;
+    task write_data_by_apb(logic [7:0] addr, logic [7:0] data);
+        vif.paddr_i   <= addr;
+        vif.pwrite_i  <= 1;
+        vif.psel_i    <= 1;
+        vif.pwdata_i  <= data;
+        vif.wait_for_posedge(1);
+        vif.penable_i <= 1;
+        vif.wait_for_posedge(1);
+        vif.penable_i <= 0;
+        vif.pwrite_i  <= 0;
     endtask
 
     virtual task unset_data();

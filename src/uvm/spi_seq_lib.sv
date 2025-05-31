@@ -25,8 +25,8 @@ class spi_master_seq_base extends uvm_sequence#(spi_seq_item_base);
         repeat(item_amount) begin
             req = REQ::type_id::create("req");
             start_item(req);
-            req.data_i = $urandom();
-            // randomize_req();
+            req.instruction = '{8'hF3, 8'h01, 8'h02, 8'h03, 8'h11};
+            req.bytes_cnt = 5;
             finish_item(req);
         end
     endtask

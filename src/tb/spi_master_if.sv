@@ -3,17 +3,21 @@ interface spi_master_if(
     input logic aresetn_i
 );
 
+    // APB signals to DUT
+    logic [7:0] paddr_i;
+    logic       psel_i;
+    logic       penable_i;
+    logic       pwrite_i;
+    logic [7:0] pwdata_i;
 
-  // DUT interface
-  logic        start_i;
-  logic        load_i;
+    logic       pready_o;
+    logic       prdata_o;
 
-  logic [7:0]  data_i;
-
-  logic        miso_i;
-  logic        sclk_o;
-  logic        mosi_o;
-  logic        cs_o;
+    // Data from DUT
+    logic       miso_i;
+    logic       sclk_o;
+    logic       mosi_o;
+    logic       cs_o;
 
   task wait_for_posedge(int num);
       repeat(num) @(posedge clk_i);
