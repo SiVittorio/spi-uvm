@@ -1,11 +1,17 @@
 module spi_master(
-    input clk_i,
-    input aresetn_i,
 
-    input  start_i,           // do load, read or shift
-    input  load_i,            // load_i from data_i to shift_reg
+    // APB interface
+    input       pclk_i,
+    input       presetn_i,
+    input [7:0] paddr_i,
+    input       psel_i,
+    input       penable_i,
+    input       pwrite_i,
+    input [7:0] pwdata_i,
 
-    input  [7:0]  data_i,
+    output      pready_o,
+    output      prdata_o,
+
 
     // SPI interface
     input      miso_i,
@@ -13,58 +19,104 @@ module spi_master(
     output reg mosi_o,
     output reg cs_o   );
 
+    // Internal logic regs
+    integer   bytes_reg_num;
+    integer   spi_bit_count;
+    integer   instr_byte_num;
+    reg [7:0] shift_reg;
 
-    integer count;
+    // Common regs with APB access
+    reg [7:0] instr;
+    reg [7:0] bytes [0:4]; //TODO check correct
+    reg [7:0] bytes_cnt;
+    reg [7:0] drive;
+    reg [7:0] str;
 
-    reg [7:0]shift_reg;
-    reg is_in_progress;
-    assign sclk_o      = is_in_progress ? clk_i : 1'b1;
+    // Addresses for common regs
+    localparam INSTR_REG_ADDR       = 8'h00;
+    localparam BYTES_1_REG_ADDR     = 8'h01;
+    localparam BYTES_2_REG_ADDR     = 8'h02;
+    localparam BYTES_3_REG_ADDR     = 8'h03;
+    localparam BYTES_4_REG_ADDR     = 8'h04;
+    localparam BYTES_5_REG_ADDR     = 8'h05;
+    localparam BYTES_CNT_REG_ADDR   = 8'h06;
+    localparam DRIVE_REG_ADDR       = 8'h07;
+    localparam ST_REG_ADDR          = 8'h08;
 
-    // Internal logic block
-    always @(posedge clk_i,negedge aresetn_i)
+    assign sclk_o      = &drive ? pclk_i : 1'b1;
+    assign pready_o    = &drive;
+
+
+    // Write APB data logic
+    always @(posedge pclk_i,negedge presetn_i)
     begin
-        if(!aresetn_i)
+        if(!presetn_i)
         begin
-            count          <= 0;
-            shift_reg      <= 8'd0;
-            is_in_progress <= 1'b0;
+            instr     <= 8'h00;
+            bytes_cnt <= 8'h00;
+            drive     <= 8'h00;
+            str       <= 8'h00;
+            for (bytes_reg_num=0; bytes_reg_num<5; bytes_reg_num=bytes_reg_num+1)
+                bytes[bytes_reg_num] <= 8'h00;
         end
         else
         begin
-            if(start_i)
+            if (psel_i && penable_i && pwrite_i)
             begin
-                if(load_i)
-                begin
-                    shift_reg      <= data_i;
-                    count          <= 0;
-                    is_in_progress <= 1'b1;
-                end
-                else if(count < 8)
-                begin
-                    shift_reg      <= { shift_reg[6:0], miso_i };
-                    count          <= count + 1;
-                    is_in_progress <= count != 7;
-                end
+                case(paddr_i)
+                    INSTR_REG_ADDR:     instr     <= pwdata_i;
+                    BYTES_1_REG_ADDR:   bytes[0]  <= pwdata_i;
+                    BYTES_2_REG_ADDR:   bytes[1]  <= pwdata_i;
+                    BYTES_3_REG_ADDR:   bytes[2]  <= pwdata_i;
+                    BYTES_4_REG_ADDR:   bytes[3]  <= pwdata_i;
+                    BYTES_5_REG_ADDR:   bytes[4]  <= pwdata_i;
+                    BYTES_CNT_REG_ADDR: bytes_cnt <= pwdata_i;
+                    DRIVE_REG_ADDR:     drive     <= pwdata_i;
+                endcase
             end
-            else
+        end
+    end
+
+    always @(posedge pclk_i,negedge presetn_i)
+    begin
+        if(!presetn_i)
+        begin
+            shift_reg <= 8'h00;
+        end
+        else
+        begin
+            if (&drive)
             begin
-                is_in_progress <= 1'b0;
-                count          <= 0;
+                for (instr_byte_num=0; instr_byte_num<bytes_cnt; instr_byte_num = instr_byte_num + 1) begin
+                    case (instr_byte_num)
+                        0: shift_reg <= instr;
+                        1: shift_reg <= bytes[instr_byte_num-1];
+                        2: shift_reg <= bytes[instr_byte_num-1];
+                        3: shift_reg <= bytes[instr_byte_num-1];
+                        4: shift_reg <= bytes[instr_byte_num-1];
+                        5: shift_reg <= bytes[instr_byte_num-1];
+                    endcase
+
+                    for (spi_bit_count=0; spi_bit_count<8; spi_bit_count = spi_bit_count + 1) begin
+                        shift_reg <= { shift_reg[6:0], miso_i };
+                    end
+                end
+                drive <= 8'h00;
             end
         end
     end
 
     // SPI-interface logic block
-    always @(negedge clk_i)
+    always @(negedge pclk_i)
     begin
-        if(!aresetn_i)
+        if(!presetn_i)
         begin
             cs_o   <= 1'b1;
             mosi_o <= 1'bx;
         end
         else
         begin
-            if (is_in_progress)
+            if (&drive)
             begin
                 cs_o   <= 1'b0;
                 mosi_o <= shift_reg[7];
