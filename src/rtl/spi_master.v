@@ -27,7 +27,7 @@ module spi_master(
 
     // Common regs with APB access
     reg [7:0] instr;
-    reg [7:0] bytes [0:4]; //TODO check correct
+    reg [7:0] bytes [0:4];
     reg [7:0] bytes_cnt;
     reg [7:0] drive;
     reg [7:0] str;
@@ -43,8 +43,8 @@ module spi_master(
     localparam DRIVE_REG_ADDR       = 8'h07;
     localparam ST_REG_ADDR          = 8'h08;
 
-    assign sclk_o      = &drive ? pclk_i : 1'b1;
-    assign pready_o    = ~&drive;
+    assign sclk_o      = &drive && str[0] ? pclk_i : 1'b1;
+    assign pready_o    = 1;
 
 
     // Write APB data logic
@@ -61,7 +61,7 @@ module spi_master(
         end
         else
         begin
-            if (psel_i && penable_i && pwrite_i && pready_o)
+            if (psel_i && penable_i && pwrite_i && pready_o && ~&drive && ~str[0])
             begin
                 case(paddr_i)
                     INSTR_REG_ADDR:     instr     <= pwdata_i;
