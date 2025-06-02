@@ -15,7 +15,8 @@ class spi_scoreboard_base extends uvm_scoreboard;
     // Vars for check
     logic [7:0] data_rx [0:4];
     logic       cs_unset     = 1;
-    int         byte_count        = 0;
+    int         byte_count   = 0;
+    int         bit_count    = 0;
 
 
     function new(string name = "", uvm_component parent = null);
@@ -48,18 +49,13 @@ class spi_scoreboard_base extends uvm_scoreboard;
         spi_seq_item_base t_data;
         forever begin
             data    .get(t_data);
-            // do_check(t_data);
+            do_check(t_data);
         end
     endtask
 
     virtual function void do_check(
         spi_seq_item_base t_data
     );
-        if (t_data.cs_o)
-        begin
-            $display("MOSI: %b", t_data.mosi_o);
-        end
-        // `uvm_info(get_name(), $sformatf("Count is %d", count), UVM_MEDIUM);
 
         // if (!cs_unset && t_data.cs_o)
         // begin
@@ -74,19 +70,37 @@ class spi_scoreboard_base extends uvm_scoreboard;
         //         ), UVM_DEBUG);
         // end
 
-        // if (cs_unset && !t_data.cs_o)
-        // begin
-        //     cs_unset = ~cs_unset;
-        //     `uvm_info(get_name(), $sformatf("Starting transmission for %8b", t_data.data_i), UVM_MEDIUM);
-        // end
+        if (cs_unset && !t_data.cs_o)
+        begin
+            cs_unset = ~cs_unset;
+            `uvm_info(get_name(), $sformatf("Starting transmission"), UVM_MEDIUM);
+        end
 
-        // if (count < 8 && !cs_unset)
-        // begin
-        //     data_rx = {data_rx[6:0], t_data.mosi_o};
-        //     count++;
-        // end
+        if (bit_count == 8)
+        begin
+            bit_count = 0;
+            byte_count++;
+        end
 
-        // if (count == 8 && !cs_unset)
+        if (!cs_unset && t_data.cs_o)
+        begin
+            `uvm_info(get_name(), $sformatf("COMPARE"), UVM_MEDIUM);
+            for (int i=0; i<5; ++i)
+            begin
+                if (t_data.instruction[i] !== data_rx[i])
+                    `uvm_error({get_name(),": BAD"}, $sformatf("DUT: %2h\tSCRB: %2h", t_data.instruction[i], data_rx[i]));
+                `uvm_info(get_name(), $sformatf("DUT: %2h\tSCRB: %2h", t_data.instruction[i], data_rx[i]), UVM_MEDIUM);
+            end
+            cs_unset = 1;
+        end
+
+        if (!cs_unset)
+        begin
+            data_rx[byte_count] = {data_rx[byte_count][6:0], t_data.mosi_o};
+            bit_count++;
+        end
+
+        // if (bit_count == 8 && !cs_unset)
         // begin
         //     if (data_rx !== t_data.data_i)
         //     begin
@@ -103,7 +117,7 @@ class spi_scoreboard_base extends uvm_scoreboard;
 
         //     cs_unset    = 1;
         // end
-        // else if (count == 8 && cs_unset)
+        // else if (bit_count == 8 && cs_unset)
         // begin
         //     if (!t_data.cs_o)
         //     begin
@@ -118,7 +132,7 @@ class spi_scoreboard_base extends uvm_scoreboard;
         //         ), UVM_DEBUG);
         //     end
 
-        //     count = 0;
+        //     bit_count = 0;
         // end
 
         // if (t_data.cs_o && (t_data.mosi_o !== 1'bx || t_data.sclk_o !== 1'b1))

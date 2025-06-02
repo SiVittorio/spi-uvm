@@ -36,31 +36,32 @@ class spi_seq_item_base extends uvm_sequence_item;
         end
         super.do_copy(that);
         this.instruction = that.instruction;
-        this.bytes_cnt = that.bytes_cnt;
-        this.miso_all = that.miso_all;
+        this.bytes_cnt   = that.bytes_cnt;
+        this.miso_all    = that.miso_all;
 
-        this.paddr_i = that.paddr_i;
-        this.psel_i = that.psel_i;
-        this.penable_i = that.penable_i;
-        this.pwrite_i = that.pwrite_i;
-        this.pwdata_i = that.pwdata_i;
-        this.pready_o = that.pready_o;
-        this.prdata_o = that.prdata_o;
+        this.paddr_i     = that.paddr_i;
+        this.psel_i      = that.psel_i;
+        this.penable_i   = that.penable_i;
+        this.pwrite_i    = that.pwrite_i;
+        this.pwdata_i    = that.pwdata_i;
+        this.pready_o    = that.pready_o;
+        this.prdata_o    = that.prdata_o;
 
-        this.miso_i = that.miso_i;
-        this.sclk_o = that.sclk_o;
-        this.cs_o   = that.cs_o  ;
-        this.mosi_o = that.mosi_o;
+        this.miso_i      = that.miso_i;
+        this.sclk_o      = that.sclk_o;
+        this.cs_o        = that.cs_o  ;
+        this.mosi_o      = that.mosi_o;
     endfunction
 
     virtual function string convert2string();
         string str;
-
+        for (int i=0; i<5; ++i) begin
+            str = {str, $sformatf("\ninstr: %2h", instruction[i])};
+        end
         str = {str, $sformatf("\nmiso_i: %7s%1b", " ",miso_i)};
         str = {str, $sformatf("\nmosi_o: %7s%1b", " ",mosi_o)};
         str = {str, $sformatf("\nsclk_o: %7s%1b", " ",sclk_o)};
         str = {str, $sformatf("\ncs_o:   %7s%1b", " ",cs_o  )};
-        // str = {str, $sformatf("\ndata_i: %8b"   ,     data_i)};
 
         return str;
     endfunction

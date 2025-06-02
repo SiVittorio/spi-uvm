@@ -65,6 +65,7 @@ class spi_driver_master extends spi_driver_base;
             wait(vif.cs_o);
 
             seq_item_port.get_next_item(req);
+            vif.instruction = req.instruction;
             `uvm_info(get_name(), "Get item", UVM_DEBUG);
             write_data_by_apb(INSTR_REG_ADDR, req.instruction[0]);
             for (int i=0; i<req.bytes_cnt; ++i) begin

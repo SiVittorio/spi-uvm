@@ -39,11 +39,20 @@ virtual class spi_monitor_base extends uvm_monitor;
 
     virtual task get_data();
         req = REQ::type_id::create("req");
-        // req.data_i = vif.data_i;
-        // req.miso_i = vif.miso_i;
-        // req.cs_o   = vif.cs_o  ;
-        // req.mosi_o = vif.mosi_o;
-        // req.sclk_o = vif.sclk_o;
+
+        req.instruction = vif.instruction;
+        req.paddr_i     = vif.paddr_i;
+        req.psel_i      = vif.psel_i;
+        req.penable_i   = vif.penable_i;
+        req.pwrite_i    = vif.pwrite_i;
+        req.pwdata_i    = vif.pwdata_i;
+        req.pready_o    = vif.pready_o;
+        req.prdata_o    = vif.prdata_o;
+
+        req.miso_i      = vif.miso_i;
+        req.sclk_o      = vif.sclk_o;
+        req.cs_o        = vif.cs_o  ;
+        req.mosi_o      = vif.mosi_o;
         // `uvm_info(get_name(), $sformatf("Got item: %s", req.convert2string()), UVM_DEBUG);
         ap.write(req);
     endtask

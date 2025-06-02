@@ -2,6 +2,7 @@ interface spi_master_if(
     input logic clk_i,
     input logic aresetn_i
 );
+    logic [7:0] instruction [0:4];
 
     // APB signals to DUT
     logic [7:0] paddr_i;
