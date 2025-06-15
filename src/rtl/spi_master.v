@@ -43,7 +43,7 @@ module spi_master(
     localparam DRIVE_REG_ADDR       = 8'h07;
     localparam ST_REG_ADDR          = 8'h08;
 
-    assign sclk_o      = &drive && str[0] ? pclk_i : 1'b1;
+    assign sclk_o      = &drive && str[0] && instr_byte_num <= bytes_cnt+1 ? pclk_i : 1'b1;
     assign pready_o    = 1;
 
 
@@ -96,7 +96,7 @@ module spi_master(
                     shift_reg <= instr;
                     instr_byte_num = instr_byte_num + 1;
                 end
-                else if (instr_byte_num <= bytes_cnt)
+                else if (instr_byte_num <= bytes_cnt+1)
                 begin
                     if (spi_bit_count < 7)
                     begin
@@ -133,7 +133,7 @@ module spi_master(
         end
         else
         begin
-            if (&drive && str[0] && instr_byte_num <= bytes_cnt)
+            if (&drive && str[0] && instr_byte_num <= bytes_cnt+1)
             begin
                 cs_o   <= 1'b0;
                 mosi_o <= shift_reg[7];
