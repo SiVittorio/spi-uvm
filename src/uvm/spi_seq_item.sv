@@ -3,9 +3,10 @@ class spi_seq_item_base extends uvm_sequence_item;
     `uvm_object_utils(spi_seq_item_base)
     
     // Data to test
-    logic [7:0] instruction [0:4];
-    logic [7:0] bytes_cnt;
-    rand logic [7:0] miso_all [0:4];
+    rand logic [7:0] instruction [0:5];
+    rand logic [7:0] bytes_cnt        ;
+    rand logic [7:0] miso_all    [0:5];
+    rand logic       is_write    [0:7];
 
     // APB signals to DUT
     logic [7:0] paddr_i;
@@ -23,6 +24,7 @@ class spi_seq_item_base extends uvm_sequence_item;
     logic       mosi_o;
     logic       cs_o;
 
+    constraint valid_bytes_cnt {bytes_cnt < 8'd6;}
 
     function new(string name = "");
         super.new(name);
@@ -38,6 +40,7 @@ class spi_seq_item_base extends uvm_sequence_item;
         this.instruction = that.instruction;
         this.bytes_cnt   = that.bytes_cnt;
         this.miso_all    = that.miso_all;
+        this.is_write    = that.is_write;
 
         this.paddr_i     = that.paddr_i;
         this.psel_i      = that.psel_i;

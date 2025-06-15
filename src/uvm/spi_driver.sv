@@ -66,25 +66,28 @@ class spi_driver_master extends spi_driver_base;
 
             seq_item_port.get_next_item(req);
             vif.instruction = req.instruction;
+            vif.bytes_cnt = req.bytes_cnt;
+            vif.is_write  = req.is_write;
             `uvm_info(get_name(), "Get item", UVM_DEBUG);
-            write_data_by_apb(INSTR_REG_ADDR, req.instruction[0]);
+            write_data_by_apb(INSTR_REG_ADDR, req.instruction[0], req.is_write[0]);
+            `uvm_info(get_name(), $sformatf("IS_WRITE %b", req.is_write[0]), UVM_MEDIUM);
             for (int i=0; i<req.bytes_cnt; ++i) begin
-                write_data_by_apb(i+1, req.instruction[i+1]);
+                write_data_by_apb(i+1, req.instruction[i+1], req.is_write[i+1]);
             end
             `uvm_info(get_name(), "After cycle", UVM_DEBUG);
-            write_data_by_apb(BYTES_CNT_REG_ADDR, req.bytes_cnt);
-            write_data_by_apb(DRIVE_REG_ADDR, 8'hff);
+            write_data_by_apb(BYTES_CNT_REG_ADDR, req.bytes_cnt, req.is_write[6]);
+            write_data_by_apb(DRIVE_REG_ADDR, 8'hff, req.is_write[7]);
             unset_data();
 
             wait(vif.pready_o);
 
-            vif.wait_for_posedge(1);
+            vif.wait_for_posedge(2);
             seq_item_port.item_done();
         end
         `uvm_info(get_name(), "End main", UVM_DEBUG);
     endtask
 
-    task write_data_by_apb(logic [7:0] addr, logic [7:0] data);
+    task write_data_by_apb(logic [7:0] addr, logic [7:0] data, bit is_write);
         vif.paddr_i   <= addr;
         vif.pwrite_i  <= 1;
         vif.psel_i    <= 1;

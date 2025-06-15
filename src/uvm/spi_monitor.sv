@@ -41,6 +41,7 @@ virtual class spi_monitor_base extends uvm_monitor;
         req = REQ::type_id::create("req");
 
         req.instruction = vif.instruction;
+        req.bytes_cnt   = vif.bytes_cnt;
         req.paddr_i     = vif.paddr_i;
         req.psel_i      = vif.psel_i;
         req.penable_i   = vif.penable_i;
