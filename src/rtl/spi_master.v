@@ -9,8 +9,8 @@ module spi_master(
     input       pwrite_i,
     input [7:0] pwdata_i,
 
-    output      pready_o,
-    output      prdata_o,
+    output            pready_o,
+    output reg [7:0]  prdata_o,
 
 
     // SPI interface
@@ -20,10 +20,10 @@ module spi_master(
     output reg cs_o   );
 
     // Internal logic regs
-    integer   bytes_reg_num;
-    integer   spi_bit_count;
-    integer   instr_byte_num;
-    reg [7:0] shift_reg;
+    reg [2:0]   bytes_reg_num;
+    reg [2:0]   spi_bit_count;
+    reg [2:0]   instr_byte_num;
+    reg [7:0]   shift_reg;
 
     // Common regs with APB access
     reg [7:0] instr;
@@ -77,6 +77,56 @@ module spi_master(
         end
     end
 
+    // Read APB data logic
+    always @(posedge pclk_i,negedge presetn_i)
+    begin
+        if(!presetn_i)
+        begin
+            prdata_o <= 8'h00;
+        end
+        else
+        begin
+            if (psel_i && penable_i && !pwrite_i && pready_o)
+            begin
+                case(paddr_i)
+                    INSTR_REG_ADDR:     prdata_o <= instr    ;
+                    BYTES_1_REG_ADDR:   prdata_o <= bytes[0] ;
+                    BYTES_2_REG_ADDR:   prdata_o <= bytes[1] ;
+                    BYTES_3_REG_ADDR:   prdata_o <= bytes[2] ;
+                    BYTES_4_REG_ADDR:   prdata_o <= bytes[3] ;
+                    BYTES_5_REG_ADDR:   prdata_o <= bytes[4] ;
+                    BYTES_CNT_REG_ADDR: prdata_o <= bytes_cnt;
+                    DRIVE_REG_ADDR:     prdata_o <= drive    ;
+                    ST_REG_ADDR:        prdata_o <= str      ;
+                endcase
+            end
+        end
+    end
+
+    // // APB PREADY logic
+    // always @(posedge pclk_i,negedge presetn_i)
+    // begin
+    //     if(!presetn_i)
+    //     begin
+    //         pready_o <= 1'b0;
+    //     end
+    //     else
+    //     begin
+    //         if (psel_i && penable_i && !pwrite_i && pready_o)
+    //         begin
+    //             pready_o <= 1'b1;
+    //         end
+    //         else if (psel_i && penable_i && pwrite_i && pready_o && ~&drive && ~str[0])
+    //         begin
+    //             pready_o <= 1'b1;
+    //         end
+    //         else
+    //         begin
+    //             pready_o <= 1'b0;
+    //         end
+    //     end
+    // end
+
     always @(posedge pclk_i,negedge presetn_i)
     begin
         if(!presetn_i)
@@ -129,7 +179,7 @@ module spi_master(
         if(!presetn_i)
         begin
             cs_o   <= 1'b1;
-            mosi_o <= 1'bx;
+            mosi_o <= 1'b1;
         end
         else
         begin
@@ -141,7 +191,7 @@ module spi_master(
             else
             begin
                 cs_o   <= 1'b1;
-                mosi_o <= 1'bx;
+                mosi_o <= 1'b1;
             end
         end
     end
