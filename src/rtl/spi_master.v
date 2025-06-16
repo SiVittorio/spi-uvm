@@ -20,7 +20,6 @@ module spi_master(
     output reg cs_o   );
 
     // Internal logic regs
-    reg [2:0]   bytes_reg_num;
     reg [2:0]   spi_bit_count;
     reg [2:0]   instr_byte_num;
     reg [7:0]   shift_reg;
@@ -56,8 +55,6 @@ module spi_master(
             bytes_cnt <= 8'h00;
             drive     <= 8'h00;
             str       <= 8'h00;
-            for (bytes_reg_num=0; bytes_reg_num<5; bytes_reg_num=bytes_reg_num+1)
-                bytes[bytes_reg_num] <= 8'h00;
         end
         else
         begin
@@ -70,7 +67,7 @@ module spi_master(
                     BYTES_3_REG_ADDR:   bytes[2]  <= pwdata_i;
                     BYTES_4_REG_ADDR:   bytes[3]  <= pwdata_i;
                     BYTES_5_REG_ADDR:   bytes[4]  <= pwdata_i;
-                    BYTES_CNT_REG_ADDR: bytes_cnt <= pwdata_i;
+                    BYTES_CNT_REG_ADDR: bytes_cnt <= pwdata_i < 8'h06 ? pwdata_i : 8'h00;
                     DRIVE_REG_ADDR:     drive     <= pwdata_i;
                 endcase
             end
