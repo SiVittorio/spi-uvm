@@ -8,8 +8,6 @@ class spi_scoreboard_base extends uvm_scoreboard;
 
     int item_amount = 1;
 
-    // spi_cov_wrapper cov_wrapper; // TODO coverage
-
     mailbox#(spi_seq_item_base) data;
 
     // Vars for check
@@ -46,28 +44,34 @@ class spi_scoreboard_base extends uvm_scoreboard;
     virtual task reset_phase(uvm_phase phase);
         spi_seq_item_base tmp;
         while(data.try_get(tmp));
-        foreach (dut_regs[i]) begin
-            dut_regs[i] = 0;
-        end
     endtask
 
     virtual task main_phase(uvm_phase phase);
         spi_seq_item_base t_data;
+        foreach (dut_regs[i]) begin
+            dut_regs[i] = 8'd0;
+        end
         forever begin
-            data    .get(t_data);
+            data.get(t_data);
+            calculate_regs(t_data);
             do_check(t_data);
         end
     endtask
 
+    virtual function void calculate_regs(spi_seq_item_base t_data);
+        if (!cs_unset || !t_data.cs_o)
+            foreach (t_data.is_write[i]) begin
+                case (i)
+                    6:       dut_regs[i] = t_data.is_write[i] ? t_data.bytes_cnt      : dut_regs[i];
+                    7:       dut_regs[i] = t_data.is_write[i] ? 8'hFF                 : dut_regs[i];
+                    default: dut_regs[i] = t_data.is_write[i] ? t_data.instruction[i] : dut_regs[i];
+                endcase
+            end
+    endfunction
+
     virtual function void do_check(
         spi_seq_item_base t_data
     );
-        foreach (t_data.is_write[i]) begin
-            case (i)
-                6: dut_regs[i] = t_data.is_write[i] ? t_data.bytes_cnt : dut_regs[i];
-                default: dut_regs[i] = t_data.is_write[i] ? t_data.instruction[i] : dut_regs[i];
-            endcase
-        end
         // if (!cs_unset && t_data.cs_o)
         // begin
         //     `uvm_error({get_name(),": BAD"}, $sformatf(
@@ -103,6 +107,7 @@ class spi_scoreboard_base extends uvm_scoreboard;
             `uvm_info(get_name(), $sformatf("COMPARE"), UVM_MEDIUM);
             for (int i=0; i<current_bytes_cnt+1; ++i)
             begin
+                `uvm_info(get_name(), $sformatf("REG MODEL: %2h", dut_regs[i+1]), UVM_MEDIUM);
                 if (current_intr[i] !== data_rx[i])
                     `uvm_error({get_name(),": BAD"}, $sformatf("DUT: %2h\tSCRB: %2h", data_rx[i], current_intr[i]));
                 `uvm_info(get_name(), $sformatf("DUT: %2h\tSCRB: %2h", data_rx[i], current_intr[i]), UVM_MEDIUM);
