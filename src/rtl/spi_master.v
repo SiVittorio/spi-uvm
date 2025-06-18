@@ -23,6 +23,7 @@ module spi_master(
     reg [2:0]   spi_bit_count;
     reg [2:0]   instr_byte_num;
     reg [7:0]   shift_reg;
+    reg [2:0]   bytes_reset_count;
 
     // Common regs with APB access
     reg [7:0] instr;
@@ -55,6 +56,9 @@ module spi_master(
             bytes_cnt <= 8'h00;
             drive     <= 8'h00;
             str       <= 8'h00;
+            for (bytes_reset_count=0; bytes_reset_count<5; bytes_reset_count = bytes_reset_count+1) begin
+                bytes[bytes_reset_count] <= 8'h00;
+            end
         end
         else
         begin
