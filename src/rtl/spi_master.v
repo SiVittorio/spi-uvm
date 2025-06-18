@@ -104,30 +104,6 @@ module spi_master(
         end
     end
 
-    // // APB PREADY logic
-    // always @(posedge pclk_i,negedge presetn_i)
-    // begin
-    //     if(!presetn_i)
-    //     begin
-    //         pready_o <= 1'b0;
-    //     end
-    //     else
-    //     begin
-    //         if (psel_i && penable_i && !pwrite_i && pready_o)
-    //         begin
-    //             pready_o <= 1'b1;
-    //         end
-    //         else if (psel_i && penable_i && pwrite_i && pready_o && ~&drive && ~str[0])
-    //         begin
-    //             pready_o <= 1'b1;
-    //         end
-    //         else
-    //         begin
-    //             pready_o <= 1'b0;
-    //         end
-    //     end
-    // end
-
     always @(posedge pclk_i,negedge presetn_i)
     begin
         if(!presetn_i)
